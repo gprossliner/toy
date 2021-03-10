@@ -30,6 +30,45 @@ function toyinstance(name) {
   }
 }
 
+const internals = {
+  $domElement: buildUI,
+  $all: (function () {
+    return toys;
+  })(),
+  $apply: () => {
+    for(let i=0; i<applyList.length; i++){
+      applyList[i]();
+    }
+  }
+};
+
+const proxyhandler = {
+  // entrypoint for toy.<property>
+  get(target, property) {
+    if (property[0] == "$") {
+      return internals[property];
+    }
+
+    let instance = toys[property];
+    if (!instance) {
+      console.log(`toy: ${property} created`);
+      instance = new toyinstance(property);
+      toys[property] = instance;
+      return instance;
+    }
+    return instance;
+  },
+};
+
+const toy = new Proxy(toys, proxyhandler);
+
+if (!window.toy) window.toy = toy;
+
+if (typeof module != 'undefined') {
+  module.exports = toy;
+}
+
+
 function buildUI() {
   function elroot(tag, att) {
     return el(document.body, tag, att);
@@ -91,38 +130,3 @@ function buildUI() {
 
   return divRoot;
 }
-
-const internals = {
-  $domElement: buildUI,
-  $all: (function () {
-    return toys;
-  })(),
-  $apply: () => {
-    for(let i=0; i<applyList.length; i++){
-      applyList[i]();
-    }
-  }
-};
-
-const proxyhandler = {
-  // entrypoint for toy.<property>
-  get(target, property) {
-    if (property[0] == "$") {
-      return internals[property];
-    }
-
-    let instance = toys[property];
-    if (!instance) {
-      console.log(`toy: ${property} created`);
-      instance = new toyinstance(property);
-      toys[property] = instance;
-      return instance;
-    }
-    return instance;
-  },
-};
-
-const toy = new Proxy(toys, proxyhandler);
-
-if (!window.toy) window.toy = toy;
-export default toy;
