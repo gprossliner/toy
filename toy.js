@@ -1,4 +1,5 @@
 const toys = {};
+const converters = [];
 
 function toy(name) {
 
@@ -13,17 +14,45 @@ function toy(name) {
 }
 
 function Toy(name) {
+
   this.name = name;
   this.value = null;
   this.defaultValue = 0;
   this.options = {};
+  this.converter = null;
+
+  const setDefaultValue = (defaultValue) => {
+    this.defaultValue = defaultValue;
+    this.converter = toy.converters.get(defaultValue.constructor);
+
+    if(this.converter){
+      this.converter.init(this);
+    }
+  }
 
   this.get = function (defaultValue) {
-    if (!this.defaultValue) this.defaultValue = defaultValue;
+
+    if (!this.defaultValue) {
+      setDefaultValue(defaultValue);
+    }
+
     return this.value ?? this.defaultValue;
   };
 
+  this.getConverted = function () {
+    let value = this.value ?? this.defaultValue;
+    if (this.converter)
+      value = this.converter.get(value);
+
+    return value;
+  }
+
   this.set = function (value) {
+
+    // check for conversion
+    if (this.converter) {
+      value = this.converter.set(value);
+    }
 
     // value by be converted, so we check the type of the default-value
     if (this.defaultValue.constructor != value.constructor) {
@@ -35,10 +64,10 @@ function Toy(name) {
     return this;
   };
 
-  this.range = function(min, max, step = 0) {
+  this.range = function (min, max, step = 0) {
 
     // if step is not configured, use 100 steps
-    if(!step) {
+    if (!step) {
       step = (max - min) / 100;
     }
     this.options.range = { min, max, step };
@@ -46,12 +75,16 @@ function Toy(name) {
   }
 
   this.bind = function (defered, callback, defaultValue) {
-    this.defaultValue = defaultValue;
-    defered.binds.push(()=>callback(this.get()));
+    setDefaultValue(defaultValue);
+    defered.binds.push(() => callback(this.get()));
     callback(defaultValue);
     return this;
   }
 
+  this.hint = function (hint) {
+    this.options.hint = hint;
+    return this;
+  }
 }
 
 toy.defered = function () {
@@ -69,6 +102,29 @@ toy.defered = function () {
 
 }
 
+toy.converters = {
+
+  define: function (converter) {
+    converters.push(converter)
+  },
+
+  get: function (constructor) {
+    return converters
+      .filter(c => c.constructor == constructor)
+    [0] || null;
+  },
+
+}
+
+// add converters for THREE classes
+if (typeof THREE != 'undefined') {
+  toy.converters.define({
+    constructor: THREE.Color,
+    get: color => color.getHex(),
+    set: value => new THREE.Color(value),
+    init: toy => toy.hint("color")
+  });
+}
 
 if (!window.toy) window.toy = toys;
 
@@ -105,29 +161,34 @@ toy.ui = function (parent) {
   for (let i = 0; i < names.length; i++) {
     const toy = toys[names[i]];
 
-    
-      const li = ul.create("li");
 
-      li.create("div").cls("toy-name").text(toy.name);
-      const input = li.create("input").value(toy.get());
+    const li = ul.create("li");
 
-      if(toy.options.range) {
-        input
-          .attr("type", "range")
-          .attr("min", toy.options.range.min)
-          .attr("max", toy.options.range.max)
-          .attr("step", toy.options.range.step)
-          .addEventListener("input", event => toy.set(event.target.value));
-      } else {
-        input.addEventListener("keyup", event => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            const text = event.target.value;
-            toy.set(text)
-          }
-        });
-      }
-      
+    li.create("div").cls("toy-name").text(toy.name);
+    const input = li.create("input").value(toy.getConverted());
+
+    if (toy.options.range) {
+      input
+        .attr("type", "range")
+        .attr("min", toy.options.range.min)
+        .attr("max", toy.options.range.max)
+        .attr("step", toy.options.range.step)
+        .addEventListener("input", event => toy.set(event.target.value));
+    } else if(toy.options.hint == "color") {
+      input
+        .attr("type", "color")
+        .value("#" + toy.getConverted().toString(16).padStart(6, '0'))
+        .addEventListener("input", event => toy.set(event.target.value));
+    } else {
+      input.addEventListener("keyup", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const text = event.target.value;
+          toy.set(text)
+        }
+      });
+    }
+
 
   }
 

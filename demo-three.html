@@ -24,8 +24,11 @@
 			document.body.appendChild( renderer.domElement );
 
 			const geometry = new THREE.BoxGeometry();
-			const col = toy("color").get(new THREE.Color(0x00ff00));
-			const material = new THREE.MeshBasicMaterial( { color: col } );
+			const material = new THREE.MeshBasicMaterial();
+
+			material.color = toy("color")
+				.bind(toyAnimate, color => material.color = color, new THREE.Color(0x00ff00));
+				
 			const cube = new THREE.Mesh( geometry, material );
 			scene.add( cube );
 
