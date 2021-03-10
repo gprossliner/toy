@@ -1,91 +1,93 @@
-const toys = {};
-const converters = [];
-
 function toy(name) {
 
-  let instance = toys[name];
+  let instance = toy.toys[name];
   if (!instance) {
     console.log(`toy: ${name} created`);
     instance = new Toy(name);
-    toys[name] = instance;
+    toy.toys[name] = instance;
     return instance;
   }
   return instance;
-}
 
-function Toy(name) {
 
-  this.name = name;
-  this.value = null;
-  this.defaultValue = 0;
-  this.options = {};
-  this.converter = null;
+  function Toy(name) {
 
-  const setDefaultValue = (defaultValue) => {
-    this.defaultValue = defaultValue;
-    this.converter = toy.converters.get(defaultValue.constructor);
+    this.name = name;
+    this.value = null;
+    this.defaultValue = 0;
+    this.options = {};
+    this.converter = null;
 
-    if(this.converter){
-      this.converter.init(this);
+    const setDefaultValue = (defaultValue) => {
+      this.defaultValue = defaultValue;
+      this.converter = toy.extend.converters.get(defaultValue.constructor);
+
+      if (this.converter) {
+        this.converter.init(this);
+      }
     }
-  }
 
-  this.get = function (defaultValue) {
+    this.get = function (defaultValue) {
 
-    if (!this.defaultValue) {
+      if (!this.defaultValue) {
+        setDefaultValue(defaultValue);
+      }
+
+      return this.value ?? this.defaultValue;
+    };
+
+    this.getConverted = function () {
+      let value = this.value ?? this.defaultValue;
+      if (this.converter)
+        value = this.converter.get(value);
+
+      return value;
+    }
+
+    this.set = function (value) {
+
+      // check for conversion
+      if (this.converter) {
+        value = this.converter.set(value);
+      }
+
+      // value by be converted, so we check the type of the default-value
+      if (this.defaultValue.constructor != value.constructor) {
+        let converted = this.defaultValue.constructor(value);
+        value = converted;
+      }
+
+      this.value = value;
+      return this;
+    };
+
+    this.range = function (min, max, step = 0) {
+
+      // if step is not configured, use 100 steps
+      if (!step) {
+        step = (max - min) / 100;
+      }
+      this.options.range = { min, max, step };
+      return this;
+    }
+
+    this.bind = function (defered, callback, defaultValue) {
       setDefaultValue(defaultValue);
+      defered.binds.push(() => callback(this.get()));
+      callback(defaultValue);
+      return this;
     }
 
-    return this.value ?? this.defaultValue;
-  };
-
-  this.getConverted = function () {
-    let value = this.value ?? this.defaultValue;
-    if (this.converter)
-      value = this.converter.get(value);
-
-    return value;
-  }
-
-  this.set = function (value) {
-
-    // check for conversion
-    if (this.converter) {
-      value = this.converter.set(value);
+    this.hint = function (hint) {
+      this.options.hint = hint;
+      return this;
     }
-
-    // value by be converted, so we check the type of the default-value
-    if (this.defaultValue.constructor != value.constructor) {
-      let converted = this.defaultValue.constructor(value);
-      value = converted;
-    }
-
-    this.value = value;
-    return this;
-  };
-
-  this.range = function (min, max, step = 0) {
-
-    // if step is not configured, use 100 steps
-    if (!step) {
-      step = (max - min) / 100;
-    }
-    this.options.range = { min, max, step };
-    return this;
   }
 
-  this.bind = function (defered, callback, defaultValue) {
-    setDefaultValue(defaultValue);
-    defered.binds.push(() => callback(this.get()));
-    callback(defaultValue);
-    return this;
-  }
-
-  this.hint = function (hint) {
-    this.options.hint = hint;
-    return this;
-  }
 }
+
+toy.toys = {};
+toy.converters = [];
 
 toy.defered = function () {
 
@@ -102,14 +104,16 @@ toy.defered = function () {
 
 }
 
-toy.converters = {
+toy.extend = {};
+
+toy.extend.converters = {
 
   define: function (converter) {
-    converters.push(converter)
+    toy.converters.push(converter)
   },
 
   get: function (constructor) {
-    return converters
+    return toy.converters
       .filter(c => c.constructor == constructor)
     [0] || null;
   },
@@ -118,7 +122,7 @@ toy.converters = {
 
 // add converters for THREE classes
 if (typeof THREE != 'undefined') {
-  toy.converters.define({
+  toy.extend.converters.define({
     constructor: THREE.Color,
     get: color => color.getHex(),
     set: value => new THREE.Color(value),
@@ -157,37 +161,39 @@ toy.ui = function (parent) {
 
   const ul = divRoot.create("ul");
 
-  const names = Object.getOwnPropertyNames(toys);
+  const names = Object.getOwnPropertyNames(toy.toys);
   for (let i = 0; i < names.length; i++) {
-    const toy = toys[names[i]];
+    const t = toy.toys[names[i]];
 
+    (function () {
 
-    const li = ul.create("li");
+      const li = ul.create("li");
 
-    li.create("div").cls("toy-name").text(toy.name);
-    const input = li.create("input").value(toy.getConverted());
+      li.create("div").cls("toy-name").text(this.name);
+      const input = li.create("input").value(this.getConverted());
 
-    if (toy.options.range) {
-      input
-        .attr("type", "range")
-        .attr("min", toy.options.range.min)
-        .attr("max", toy.options.range.max)
-        .attr("step", toy.options.range.step)
-        .addEventListener("input", event => toy.set(event.target.value));
-    } else if(toy.options.hint == "color") {
-      input
-        .attr("type", "color")
-        .value("#" + toy.getConverted().toString(16).padStart(6, '0'))
-        .addEventListener("input", event => toy.set(event.target.value));
-    } else {
-      input.addEventListener("keyup", event => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          const text = event.target.value;
-          toy.set(text)
-        }
-      });
-    }
+      if (this.options.range) {
+        input
+          .attr("type", "range")
+          .attr("min", this.options.range.min)
+          .attr("max", this.options.range.max)
+          .attr("step", this.options.range.step)
+          .addEventListener("input", event => this.set(event.target.value));
+      } else if (this.options.hint == "color") {
+        input
+          .attr("type", "color")
+          .value("#" + this.getConverted().toString(16).padStart(6, '0'))
+          .addEventListener("input", event => this.set(event.target.value));
+      } else {
+        input.addEventListener("keyup", event => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            const text = event.target.value;
+            this.set(text)
+          }
+        });
+      }
+    }).bind(t)();
 
 
   }
