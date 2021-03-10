@@ -12,6 +12,10 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js"></script>
 		<script src="toy.js"></script>
 		<script>
+
+			// define a defered toy to apply values in animate()
+			let toyAnimate = toy.defered();
+
 			const scene = new THREE.Scene();
 			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
@@ -20,7 +24,8 @@
 			document.body.appendChild( renderer.domElement );
 
 			const geometry = new THREE.BoxGeometry();
-			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			const col = toy("color").get(new THREE.Color(0x00ff00));
+			const material = new THREE.MeshBasicMaterial( { color: col } );
 			const cube = new THREE.Mesh( geometry, material );
 			scene.add( cube );
 
@@ -32,6 +37,7 @@
 				cube.rotation.x += toy("rot-x").range(0, 1).get(0.01);
 				cube.rotation.y += toy("rot-y").range(0, 1).get(0.01);
 
+				toyAnimate();
 				renderer.render( scene, camera );
 			};
 
