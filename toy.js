@@ -10,7 +10,8 @@ function toyinstance(name) {
 
   console.log(`toy: you can change the variable ${name} in console`);
 
-  this.get = function () {
+  this.get = function (defaultValue) {
+    if(!this.defaultValue) this.defaultValue = defaultValue;
     return this.value ?? this.defaultValue;
   };
 
@@ -24,10 +25,6 @@ function toyinstance(name) {
     return this;
   }
 
-  this.default = function(defaultValue) {
-    this.defaultValue = defaultValue;
-    return this;
-  }
 }
 
 const internals = {
@@ -116,7 +113,7 @@ function buildUI() {
     const divName = el(li, "div", { class: "name" });
     divName.innerText = toy.name;
 
-    const input = el(ul, "input", { type: "text", value: toy.defaultValue});
+    const input = el(ul, "input", { type: "text", value: toy.get()});
     input.toy = toy;
 
     input.addEventListener("keyup", function (event) {
