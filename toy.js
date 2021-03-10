@@ -68,7 +68,7 @@ function toy(name) {
         step = (max - min) / 100;
       }
       this.options.range = { min, max, step };
-      return this;
+      return this.ui(toy.ui.controls.range);
     }
 
     this.bind = function (defered, callback, defaultValue) {
@@ -78,8 +78,8 @@ function toy(name) {
       return this;
     }
 
-    this.hint = function (hint) {
-      this.options.hint = hint;
+    this.ui = function (control) {
+      this.options.ui = control;
       return this;
     }
   }
@@ -126,7 +126,7 @@ if (typeof THREE != 'undefined') {
     constructor: THREE.Color,
     get: color => color.getHex(),
     set: value => new THREE.Color(value),
-    init: toy => toy.hint("color")
+    init: t => t.ui(toy.ui.controls.color)
   });
 }
 
@@ -170,13 +170,7 @@ toy.ui = function (parent) {
       li.create("div").cls("toy-name").text(this.name);
 
       // get the control
-      let control;
-      if (t.options.range)
-        control = toy.ui.controls.range
-      else if (t.options.hint == "color")
-        control = toy.ui.controls.color
-      else
-        control = toy.ui.controls.text
+      let control = t.options.ui || t.ui.controls.text;
 
       control(t, li);
 
