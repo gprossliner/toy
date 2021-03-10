@@ -165,41 +165,52 @@ toy.ui = function (parent) {
   for (let i = 0; i < names.length; i++) {
     const t = toy.toys[names[i]];
 
-    (function () {
-
       const li = ul.create("li");
 
       li.create("div").cls("toy-name").text(this.name);
-      const input = li.create("input").value(this.getConverted());
 
-      if (this.options.range) {
-        input
-          .attr("type", "range")
-          .attr("min", this.options.range.min)
-          .attr("max", this.options.range.max)
-          .attr("step", this.options.range.step)
-          .addEventListener("input", event => this.set(event.target.value));
-      } else if (this.options.hint == "color") {
-        input
-          .attr("type", "color")
-          .value("#" + this.getConverted().toString(16).padStart(6, '0'))
-          .addEventListener("input", event => this.set(event.target.value));
-      } else {
-        input.addEventListener("keyup", event => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            const text = event.target.value;
-            this.set(text)
-          }
-        });
-      }
-    }).bind(t)();
+      // get the control
+      let control;
+      if (t.options.range)
+        control = toy.ui.controls.range
+      else if (t.options.hint == "color")
+        control = toy.ui.controls.color
+      else
+        control = toy.ui.controls.text
+
+      control(t, li);
 
 
   }
 
   return divRoot.toDom();
 }
+
+toy.ui.controls = [];
+toy.ui.controls.range = (_this, parent) =>
+  parent.create("input").value(_this.getConverted())
+    .attr("type", "range")
+    .attr("min", _this.options.range.min)
+    .attr("max", _this.options.range.max)
+    .attr("step", _this.options.range.step)
+    .addEventListener("input", event => _this.set(event.target.value));
+
+toy.ui.controls.color = (_this, parent) =>
+  parent.create("input")
+    .attr("type", "color")
+    .value("#" + _this.getConverted().toString(16).padStart(6, '0'))
+    .addEventListener("input", event => _this.set(event.target.value));
+
+toy.ui.controls.text = (_this, parent) =>
+  parent.create("input")
+    .value(_this.getConverted())
+    .addEventListener("keyup", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        const text = event.target.value;
+        _this.set(text)
+      }
+    });
 
 /**
  * Fluent DOM Manipulation
