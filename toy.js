@@ -24,6 +24,13 @@ function Toy(name) {
   };
 
   this.set = function (value) {
+    
+    // value by be converted, so we check the type of the default-value
+    if(this.defaultValue.constructor != value.constructor){
+      let converted = this.defaultValue.constructor(value);
+      value = converted;
+    }
+
     this.value = value;
     return this;
   };
