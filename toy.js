@@ -15,15 +15,19 @@ function toy(name) {
     this.name = name;
     this.value = null;
     this.defaultValue = 0;
-    this.options = {};
-    this.converter = null;
+    this.options = {
+      ui : toy.ui.controls.text
+    };
 
     const setDefaultValue = (defaultValue) => {
       this.defaultValue = defaultValue;
-      this.converter = toy.extend.converters.get(defaultValue.constructor);
-
-      if (this.converter) {
-        this.converter.init(this);
+      
+      // check for ui selector
+      for(const sel of toy.uiselectors){
+        if(sel.test(defaultValue)) {
+          this.options.selector = sel;
+          this.ui(sel.ui);
+        }
       }
     }
 
@@ -36,20 +40,7 @@ function toy(name) {
       return this.value ?? this.defaultValue;
     };
 
-    this.getConverted = function () {
-      let value = this.value ?? this.defaultValue;
-      if (this.converter)
-        value = this.converter.get(value);
-
-      return value;
-    }
-
     this.set = function (value) {
-
-      // check for conversion
-      if (this.converter) {
-        value = this.converter.set(value);
-      }
 
       // value by be converted, so we check the type of the default-value
       if (this.defaultValue.constructor != value.constructor) {
@@ -87,7 +78,7 @@ function toy(name) {
 }
 
 toy.toys = {};
-toy.converters = [];
+toy.uiselectors = [];
 
 toy.defered = function () {
 
@@ -104,31 +95,9 @@ toy.defered = function () {
 
 }
 
-toy.extend = {};
-
-toy.extend.converters = {
-
-  define: function (converter) {
-    toy.converters.push(converter)
-  },
-
-  get: function (constructor) {
-    return toy.converters
-      .filter(c => c.constructor == constructor)
-    [0] || null;
-  },
-
-}
-
-// add converters for THREE classes
-if (typeof THREE != 'undefined') {
-  toy.extend.converters.define({
-    constructor: THREE.Color,
-    get: color => color.getHex(),
-    set: value => new THREE.Color(value),
-    init: t => t.ui(toy.ui.controls.color)
-  });
-}
+toy.uiselector = function(selector) {
+  toy.uiselectors.push(selector);
+};
 
 if (!window.toy) window.toy = toys;
 
@@ -161,48 +130,55 @@ toy.ui = function (parent) {
 
   const ul = divRoot.create("ul");
 
-  const names = Object.getOwnPropertyNames(toy.toys);
-  for (let i = 0; i < names.length; i++) {
-    const t = toy.toys[names[i]];
+  const names = Reflect.ownKeys(toy.toys);
+  for (let name of names) {
+      const t = toy.toys[name];
 
       const li = ul.create("li");
-
       li.create("div").cls("toy-name").text(this.name);
 
       // get the control
       let control = t.options.ui || t.ui.controls.text;
+      let writefn;
+      let value;
+      
+      if(t.options.selector) { 
+        writefn = val => t.set(t.options.selector.fromUi(val));
+        value = t.options.selector.toUi(t.get());
+      } else {
+        writefn = val => t.set(val);
+        value = t.get(); 
+      }
+        
 
-      control(t, li);
-
-
+      control(t.options, li, value, writefn)
   }
 
   return divRoot.toDom();
 }
 
 toy.ui.controls = [];
-toy.ui.controls.range = (_this, parent) =>
-  parent.create("input").value(_this.getConverted())
+toy.ui.controls.range = (options, parent, value, writefn) =>
+  parent.create("input").value(value)
     .attr("type", "range")
-    .attr("min", _this.options.range.min)
-    .attr("max", _this.options.range.max)
-    .attr("step", _this.options.range.step)
-    .addEventListener("input", event => _this.set(event.target.value));
+    .attr("min", options.range.min)
+    .attr("max", options.range.max)
+    .attr("step", options.range.step)
+    .addEventListener("input", event => writefn(event.target.value));
 
-toy.ui.controls.color = (_this, parent) =>
+toy.ui.controls.color = (options, parent, value, writefn) =>
   parent.create("input")
     .attr("type", "color")
-    .value("#" + _this.getConverted().toString(16).padStart(6, '0'))
-    .addEventListener("input", event => _this.set(event.target.value));
+    .value(value)
+    .addEventListener("input", event => writefn(event.target.value));
 
-toy.ui.controls.text = (_this, parent) =>
+toy.ui.controls.text = (options, parent, value, writefn) =>
   parent.create("input")
-    .value(_this.getConverted())
+    .value(value)
     .addEventListener("keyup", event => {
       if (event.key === "Enter") {
         event.preventDefault();
-        const text = event.target.value;
-        _this.set(text)
+        writefn(event.target.value);
       }
     });
 
@@ -311,3 +287,15 @@ $dom = (function () {
   return FluentDom
 
 })();
+
+// extend for THREE.js types 
+if (typeof THREE != 'undefined') {
+
+  toy.uiselector({
+    test : value => value.constructor == THREE.Color,
+    ui : toy.ui.controls.color,
+    toUi : color =>  "#" + color.getHexString(),
+    fromUi : input => new THREE.Color(Number.parseInt(input.substr(1), 16))
+  });
+
+}
