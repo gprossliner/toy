@@ -28,7 +28,7 @@
 
 			material.color = toy("color")
 				.bind(toyAnimate, color => material.color = color, new THREE.Color(0x00ff00));
-				
+
 			const cube = new THREE.Mesh( geometry, material );
 			scene.add( cube );
 
@@ -37,9 +37,10 @@
 			const animate = function () {
 				requestAnimationFrame( animate );
 
-				cube.rotation.x += toy("rot-x").range(0, 1).get(0.01);
-				cube.rotation.y += toy("rot-y").range(0, 1).get(0.01);
-
+				if(toy("rotate").get(true)){
+					cube.rotation.x += toy("rot-x").range(0, 1).get(0.01);
+					cube.rotation.y += toy("rot-y").range(0, 1).get(0.01);
+				}
 				toyAnimate();
 				renderer.render( scene, camera );
 			};

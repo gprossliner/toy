@@ -22,6 +22,12 @@ function toy(name) {
     const setDefaultValue = (defaultValue) => {
       this.defaultValue = defaultValue;
       
+      // check for datatypes
+      if(defaultValue.constructor == Boolean) {
+        this.ui(toy.ui.controls.checkbox)
+      }
+
+      
       // check for ui selector
       for(const sel of toy.uiselectors){
         if(sel.test(defaultValue)) {
@@ -105,7 +111,6 @@ if (typeof module != 'undefined') {
   module.exports = toys;
 }
 
-
 toy.ui = function (parent) {
 
   const stylesheet = `
@@ -135,7 +140,7 @@ toy.ui = function (parent) {
       const t = toy.toys[name];
 
       const li = ul.create("li");
-      li.create("div").cls("toy-name").text(this.name);
+      li.create("div").cls("toy-name").text(t.name);
 
       // get the control
       let control = t.options.ui || t.ui.controls.text;
@@ -158,6 +163,7 @@ toy.ui = function (parent) {
 }
 
 toy.ui.controls = [];
+
 toy.ui.controls.range = (options, parent, value, writefn) =>
   parent.create("input").value(value)
     .attr("type", "range")
@@ -165,6 +171,11 @@ toy.ui.controls.range = (options, parent, value, writefn) =>
     .attr("max", options.range.max)
     .attr("step", options.range.step)
     .addEventListener("input", event => writefn(event.target.value));
+
+toy.ui.controls.checkbox = (options, parent, value, writefn) =>
+  parent.create("input").attr("checked", value)
+    .attr("type", "checkbox")
+    .addEventListener("input", event => writefn(event.target.checked));
 
 toy.ui.controls.color = (options, parent, value, writefn) =>
   parent.create("input")
