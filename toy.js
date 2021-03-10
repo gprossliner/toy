@@ -80,9 +80,10 @@ function buildUI() {
 
   stylesheet.innerHTML = `
 
-    div.root {
+    div.toy-root {
       position: fixed;
       color: white;
+      background-color: grey;
       font-family: Arial, Helvetica, sans-serif;
       padding: 15px;
     }
@@ -90,8 +91,10 @@ function buildUI() {
   `;
 
   const divRoot = elroot("div", {
-    class: "root",
-    id: "root",
+    class: "toy-root",
+
+    // by define a css definition for #toy-root, the style can be customized externally
+    id: "toy-root",
   });
   const ul = el(divRoot, "ul");
 
