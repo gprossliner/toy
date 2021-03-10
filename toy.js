@@ -1,7 +1,7 @@
-const toys = { };
+const toys = {};
 
 function toy(name) {
-  
+
   let instance = toys[name];
   if (!instance) {
     console.log(`toy: ${name} created`);
@@ -16,17 +16,16 @@ function Toy(name) {
   this.name = name;
   this.value = null;
   this.defaultValue = 0;
-  this.binds = [];
 
   this.get = function (defaultValue) {
-    if(!this.defaultValue) this.defaultValue = defaultValue;
+    if (!this.defaultValue) this.defaultValue = defaultValue;
     return this.value ?? this.defaultValue;
   };
 
   this.set = function (value) {
-    
+
     // value by be converted, so we check the type of the default-value
-    if(this.defaultValue.constructor != value.constructor){
+    if (this.defaultValue.constructor != value.constructor) {
       let converted = this.defaultValue.constructor(value);
       value = converted;
     }
@@ -35,19 +34,10 @@ function Toy(name) {
     return this;
   };
 
-  this.bind = function(callback, defaultValue) {
-    this.binds.push(callback)
+  this.bind = function (defered, callback, defaultValue) {
     this.defaultValue = defaultValue;
+    defered.binds.push(()=>callback(this.get()));
     callback(defaultValue);
-    return this;
-  }
-
-  this.call = function() {
-    for(let i=0; i<this.binds.length; i++){
-      let bind = this.binds[i];
-      bind(this.get());
-    }
-
     return this;
   }
 
@@ -59,8 +49,23 @@ if (typeof module != 'undefined') {
   module.exports = toys;
 }
 
+toy.defered = function () {
 
-toy.ui = function(parent) {
+  const binds = [];
+  const ret = function () {
+    for (let i = 0; i < this.length; i++) {
+      let bind = this[i];
+      bind();
+    }
+  }.bind(binds)
+
+  ret.binds = binds;
+  return ret;
+
+}
+
+
+toy.ui = function (parent) {
 
   const stylesheet = `
 
@@ -75,29 +80,32 @@ toy.ui = function(parent) {
   `;
 
   $dom(parent).create("style")
-      .attr("type", "text/css")
-      .text(stylesheet);
-  
+    .attr("type", "text/css")
+    .text(stylesheet);
+
   const divRoot = $dom(parent).create("div")
-      .cls("toy-root")
-      .id("toy-root");
+    .cls("toy-root")
+    .id("toy-root");
 
   const ul = divRoot.create("ul");
 
   const names = Object.getOwnPropertyNames(toys);
   for (let i = 0; i < names.length; i++) {
     const toy = toys[names[i]];
-    const li = ul.create("li");
 
-    li.create("div").cls("toy-name").text(toy.name);
-    li.create("input").value(toy.get()).toDom(); addEventListener("keyup", event=>{
-          if (event.key === "Enter") {
-            event.preventDefault();
-            const text = event.target.value;
-            toy.set(text)
-          }
-        });
- 
+    
+      const li = ul.create("li");
+
+      li.create("div").cls("toy-name").text(toy.name);
+      li.create("input").value(toy.get()).toDom().addEventListener("keyup", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const text = event.target.value;
+          toy.set(text)
+        }
+      });
+    
+
   }
 
   return divRoot.toDom();
@@ -111,100 +119,100 @@ toy.ui = function(parent) {
  */
 
 // I removed creating $dom and FluentDom in window scope
-$dom = (function(){
-  var FluentDom = function(node) {
-      return new FluentDomInternal(node);
+$dom = (function () {
+  var FluentDom = function (node) {
+    return new FluentDomInternal(node);
   }
-  
-  FluentDom.create = function(tagName) {
+
+  FluentDom.create = function (tagName) {
     return new FluentDomInternal(document.createElement(tagName));
   }
-  
-  var FluentDomInternal = function(node) {
-      var root = node || null;
-      
-      this.fluentDom = "1.0";
-      
-      this.append = function(obj) {
-          if (!root || !root.appendChild) {
-              throw new Error("Cannot append to a non-element");
-          }
-          
-          var type = typeof(obj);
-          if (type === "object") {
-              if (obj.fluentDom) {
-                  root.appendChild(obj.toDom());
-              } else if (obj.nodeType) {
-                  root.appendChild(obj);
-              } else {
-                  throw new Error("Invalid argument: not a DOM element or a FluentDom object");
-              }
-          } else if (type === "string" || type === "number") {
-              root.appendChild(document.createTextNode(obj));
-          } else {
-              throw new Error("Invalid argument: not an object (you gave me a " + typeof(obj) + ")");
-          }
-          
-          return this;
+
+  var FluentDomInternal = function (node) {
+    var root = node || null;
+
+    this.fluentDom = "1.0";
+
+    this.append = function (obj) {
+      if (!root || !root.appendChild) {
+        throw new Error("Cannot append to a non-element");
       }
 
-      // create a new tag, appends it to this, and returns the new dom-element
-      this.create = function(tagMame) {
-        const child = FluentDom.create(tagMame);
-        this.append(child);
-        return child;
-      }
-      
-      this.attr = function(name, value) {
-          if (!root || !root.setAttribute) {
-              throw new Error("Cannot set an attribute on a non-element");
-          }
-          
-          root.setAttribute(name, value);
-          return this;
-      }
-      
-      this.text = function(text) {
-          return this.append(text);
-      }
-            
-      this.id = function(value) {
-          return this.attr("id", value);
-      }
-      
-      this.title = function(value) {
-          return this.attr("title", value);
-      }
-      
-      this.cls = function(value) {
-          return this.attr("class", value);
-      }
-      
-      this.clear = function() {
-          root = null;
-          return this;
-      }
-      
-      this.toDom = function() {
-          return root;
-      }
-      
-      this.href = function(link) {
-          return this.attr("href", link);
+      var type = typeof (obj);
+      if (type === "object") {
+        if (obj.fluentDom) {
+          root.appendChild(obj.toDom());
+        } else if (obj.nodeType) {
+          root.appendChild(obj);
+        } else {
+          throw new Error("Invalid argument: not a DOM element or a FluentDom object");
+        }
+      } else if (type === "string" || type === "number") {
+        root.appendChild(document.createTextNode(obj));
+      } else {
+        throw new Error("Invalid argument: not an object (you gave me a " + typeof (obj) + ")");
       }
 
-      // ADDED BY gprossliner
-      this.addEventListener = function(type, listener) {
-        this.toDom().addEventListener(type, listener);
-        return this;
+      return this;
+    }
+
+    // create a new tag, appends it to this, and returns the new dom-element
+    this.create = function (tagMame) {
+      const child = FluentDom.create(tagMame);
+      this.append(child);
+      return child;
+    }
+
+    this.attr = function (name, value) {
+      if (!root || !root.setAttribute) {
+        throw new Error("Cannot set an attribute on a non-element");
       }
 
-      this.value = function(value) {
-        return this.attr("value", value);
-      }
-      
+      root.setAttribute(name, value);
+      return this;
+    }
+
+    this.text = function (text) {
+      return this.append(text);
+    }
+
+    this.id = function (value) {
+      return this.attr("id", value);
+    }
+
+    this.title = function (value) {
+      return this.attr("title", value);
+    }
+
+    this.cls = function (value) {
+      return this.attr("class", value);
+    }
+
+    this.clear = function () {
+      root = null;
+      return this;
+    }
+
+    this.toDom = function () {
+      return root;
+    }
+
+    this.href = function (link) {
+      return this.attr("href", link);
+    }
+
+    // ADDED BY gprossliner
+    this.addEventListener = function (type, listener) {
+      this.toDom().addEventListener(type, listener);
+      return this;
+    }
+
+    this.value = function (value) {
+      return this.attr("value", value);
+    }
+
   };
 
   return FluentDom
-  
+
 })();
