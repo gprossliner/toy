@@ -7,6 +7,7 @@ function toyinstance(name) {
   this.name = name;
   this.value = null;
   this.defaultValue = 0;
+  this.binds = [];
 
   console.log(`toy: you can change the variable ${name} in console`);
 
@@ -20,8 +21,19 @@ function toyinstance(name) {
     return this;
   };
 
-  this.apply = function(callback) {
-    applyList.push(callback)
+  this.bind = function(callback, defaultValue) {
+    this.binds.push(callback)
+    this.defaultValue = defaultValue;
+    callback(defaultValue);
+    return this;
+  }
+
+  this.call = function() {
+    for(let i=0; i<this.binds.length; i++){
+      let bind = this.binds[i];
+      bind(this.get());
+    }
+
     return this;
   }
 
@@ -31,12 +43,8 @@ const internals = {
   $domElement: buildUI,
   $all: (function () {
     return toys;
-  })(),
-  $apply: () => {
-    for(let i=0; i<applyList.length; i++){
-      applyList[i]();
-    }
-  }
+  })()
+
 };
 
 const proxyhandler = {
