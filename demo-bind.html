@@ -16,16 +16,16 @@
 
         function onload() {
 
-            toy.animate.bind(value=>setvalue(value), 3.0);
+            toy("animate").bind(value=>setvalue(value), 3.0);
 
             function animate() {
-                toy.animate.call();
+                toy("animate").call();
                 window.requestAnimationFrame(animate);
             }
 
             animate();
 
-            document.body.appendChild(toy.$domElement());
+            document.body.appendChild(toy.domElement());
         }
 
     </script>

@@ -14,13 +14,13 @@
 
             function animate() {
                 document.getElementById("value").innerText = 
-                    toy.value.get("60");
+                    toy("value").get("default");
                 window.requestAnimationFrame(animate);
             }
 
             animate();
 
-            document.body.appendChild(toy.$domElement());
+            document.body.appendChild(toy.domElement());
         }
 
     </script>

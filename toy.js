@@ -1,15 +1,24 @@
-// the root singleton
-//  by using a toy, you create an instance of the toy in this object
-const toys = {};
-const applyList = [];
+const toys = { };
 
-function toyinstance(name) {
+function toy(name) {
+  
+  let instance = toys[name];
+  if (!instance) {
+    console.log(`toy: ${name} created`);
+    instance = new Toy(name);
+    toys[name] = instance;
+    return instance;
+  }
+  return instance;
+}
+
+toy.domElement = buildUI;
+
+function Toy(name) {
   this.name = name;
   this.value = null;
   this.defaultValue = 0;
   this.binds = [];
-
-  console.log(`toy: you can change the variable ${name} in console`);
 
   this.get = function (defaultValue) {
     if(!this.defaultValue) this.defaultValue = defaultValue;
@@ -39,38 +48,10 @@ function toyinstance(name) {
 
 }
 
-const internals = {
-  $domElement: buildUI,
-  $all: (function () {
-    return toys;
-  })()
-
-};
-
-const proxyhandler = {
-  // entrypoint for toy.<property>
-  get(target, property) {
-    if (property[0] == "$") {
-      return internals[property];
-    }
-
-    let instance = toys[property];
-    if (!instance) {
-      console.log(`toy: ${property} created`);
-      instance = new toyinstance(property);
-      toys[property] = instance;
-      return instance;
-    }
-    return instance;
-  },
-};
-
-const toy = new Proxy(toys, proxyhandler);
-
-if (!window.toy) window.toy = toy;
+if (!window.toy) window.toy = toys;
 
 if (typeof module != 'undefined') {
-  module.exports = toy;
+  module.exports = toys;
 }
 
 
@@ -128,7 +109,7 @@ function buildUI() {
       if (event.keyCode === 13) {
         event.preventDefault();
         const text = input.value;
-        toy.set(eval(text))
+        toy.set(text)
       }
     });
   }
