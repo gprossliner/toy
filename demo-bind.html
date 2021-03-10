@@ -16,10 +16,11 @@
 
         function onload() {
 
-            toy("animate").bind(value=>setvalue(value), 3.0);
+            const toyAnimate = toy.defered();
+            toy("value").bind(toyAnimate, value=>setvalue(value), 3.0);
 
             function animate() {
-                toy("animate").call();
+                toyAnimate();
                 window.requestAnimationFrame(animate);
             }
 
