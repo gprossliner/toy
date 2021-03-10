@@ -16,6 +16,7 @@ function Toy(name) {
   this.name = name;
   this.value = null;
   this.defaultValue = 0;
+  this.options = {};
 
   this.get = function (defaultValue) {
     if (!this.defaultValue) this.defaultValue = defaultValue;
@@ -34,6 +35,16 @@ function Toy(name) {
     return this;
   };
 
+  this.range = function(min, max, step = 0) {
+
+    // if step is not configured, use 100 steps
+    if(!step) {
+      step = (max - min) / 100;
+    }
+    this.options.range = { min, max, step };
+    return this;
+  }
+
   this.bind = function (defered, callback, defaultValue) {
     this.defaultValue = defaultValue;
     defered.binds.push(()=>callback(this.get()));
@@ -41,12 +52,6 @@ function Toy(name) {
     return this;
   }
 
-}
-
-if (!window.toy) window.toy = toys;
-
-if (typeof module != 'undefined') {
-  module.exports = toys;
 }
 
 toy.defered = function () {
@@ -62,6 +67,13 @@ toy.defered = function () {
   ret.binds = binds;
   return ret;
 
+}
+
+
+if (!window.toy) window.toy = toys;
+
+if (typeof module != 'undefined') {
+  module.exports = toys;
 }
 
 
@@ -97,14 +109,25 @@ toy.ui = function (parent) {
       const li = ul.create("li");
 
       li.create("div").cls("toy-name").text(toy.name);
-      li.create("input").value(toy.get()).toDom().addEventListener("keyup", event => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          const text = event.target.value;
-          toy.set(text)
-        }
-      });
-    
+      const input = li.create("input").value(toy.get());
+
+      if(toy.options.range) {
+        input
+          .attr("type", "range")
+          .attr("min", toy.options.range.min)
+          .attr("max", toy.options.range.max)
+          .attr("step", toy.options.range.step)
+          .addEventListener("input", event => toy.set(event.target.value));
+      } else {
+        input.addEventListener("keyup", event => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            const text = event.target.value;
+            toy.set(text)
+          }
+        });
+      }
+      
 
   }
 
