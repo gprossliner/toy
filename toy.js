@@ -170,12 +170,12 @@ toy.ui = function (parent) {
       .create("div")
         .cls("toy-content-inner")
 
-  const ul = divContent.create("ul");
+  const buildToy = t => {
 
-  const buildToy = t=> {
+      const container = divContent.create("div")
+        .cls("toy-container")
 
-      const li = ul.create("li");
-      li.create("div").cls("toy-label").text(t.label);
+      container.create("div").cls("toy-label").text(t.label);
 
       let writefn = val => t.set(val);
       let value = t(); 
@@ -185,7 +185,7 @@ toy.ui = function (parent) {
         value = t.options.selector.toUi(t());      
       }
 
-      t.options.ui(t.options, li, value, writefn)
+      t.options.ui(t.options, container, value, writefn)
   }
 
   toy.notifier(buildToy);
