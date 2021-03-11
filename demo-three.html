@@ -42,6 +42,9 @@
 					cube.rotation.x += toy("rot-x").range(0, 1).get(0.01);
 					cube.rotation.y += toy("rot-y").range(0, 1).get(0.01);
 				}
+
+				cube.scale.copy(new toy("scale").range(.5, 2).get(new THREE.Vector3(1,1,1)));
+
 				toyAnimate();
 				renderer.render( scene, camera );
 			};

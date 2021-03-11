@@ -107,6 +107,10 @@ toy.defered = function () {
 }
 
 toy.uiselector = function(selector) {
+
+  selector.fromUi ||= v=>v;
+  selector.toUi ||= v=>v;
+
   toy.uiselectors.push(selector);
 };
 
@@ -319,4 +323,36 @@ if (typeof THREE != 'undefined') {
     fromUi : input => new THREE.Color(Number.parseInt(input.substr(1), 16))
   });
 
+  // support the following types:
+
+  // THREE:Vector3: .scale, .position
+  toy.ui.controls.vec3 = (options, parent, value, writefn) => {    
+
+    let val = value;
+
+    const inputFn = (component, value) => {
+      val[component] = value;
+      writefn(val);
+    }
+
+    const component = c => {
+      parent.create("div")
+        .append(`${c}: `)
+        .append(toy.ui.controls.range(options, parent, value[c], val=>inputFn(c, val)));
+    }
+
+    component('x');
+    component('y');
+    component('z');
+
+  }
+
+  toy.uiselector({
+    test : value => value.constructor == THREE.Vector3,
+    ui : toy.ui.controls.vec3
+  });
+
+  // THREE.Euler: .rotation
+
+  // Matrix3: / 4
 }
