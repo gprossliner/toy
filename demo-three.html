@@ -8,10 +8,11 @@
 		</style>
 	</head>
 	<body>
-		<div id=toy></div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js"></script>
 		<script src="toy.js"></script>
 		<script>
+
+			toy.ui(document.body)
 
 			// define a defered toy to apply values in animate()
 			let toyAnimate = toy.defered();
@@ -46,8 +47,7 @@
 			};
 
 			animate();
-
-			toy.ui(document.getElementById("toy"))
+			
 		</script>
 	</body>
 </html>

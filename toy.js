@@ -26,7 +26,6 @@ function toy(name) {
       if(defaultValue.constructor == Boolean) {
         this.ui(toy.ui.controls.checkbox)
       }
-
       
       // check for ui selector
       for(const sel of toy.uiselectors){
@@ -34,6 +33,11 @@ function toy(name) {
           this.options.selector = sel;
           this.ui(sel.ui);
         }
+      }
+
+      // run notifiers
+      for(let n of toy.notifiers) {
+        n(this);
       }
     }
 
@@ -85,6 +89,7 @@ function toy(name) {
 
 toy.toys = {};
 toy.uiselectors = [];
+toy.notifiers = [];
 
 toy.defered = function () {
 
@@ -104,6 +109,17 @@ toy.defered = function () {
 toy.uiselector = function(selector) {
   toy.uiselectors.push(selector);
 };
+
+toy.notifier = function(notifier) {
+  toy.notifiers.push(notifier);
+
+  // notifiy about existing toys
+  const names = Reflect.ownKeys(toy.toys);
+  for (let name of names) {
+      const t = toy.toys[name];
+      notifier(t);
+  }
+}
 
 if (!window.toy) window.toy = toys;
 
@@ -135,29 +151,23 @@ toy.ui = function (parent) {
 
   const ul = divRoot.create("ul");
 
-  const names = Reflect.ownKeys(toy.toys);
-  for (let name of names) {
-      const t = toy.toys[name];
+  const buildToy = t=> {
 
       const li = ul.create("li");
       li.create("div").cls("toy-name").text(t.name);
 
-      // get the control
-      let control = t.options.ui || t.ui.controls.text;
-      let writefn;
-      let value;
+      let writefn = val => t.set(val);
+      let value = t.get(); 
       
       if(t.options.selector) { 
         writefn = val => t.set(t.options.selector.fromUi(val));
-        value = t.options.selector.toUi(t.get());
-      } else {
-        writefn = val => t.set(val);
-        value = t.get(); 
+        value = t.options.selector.toUi(t.get());      
       }
-        
 
-      control(t.options, li, value, writefn)
+      t.options.ui(t.options, li, value, writefn)
   }
+
+  toy.notifier(buildToy);
 
   return divRoot.toDom();
 }
