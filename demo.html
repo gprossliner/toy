@@ -13,8 +13,10 @@
         function onload() {
 
             function animate() {
-                document.getElementById("value").innerText = 
-                    toy("value").get("default");
+
+                val = toy("val")("default");
+
+                document.getElementById("value").innerText = val;
                 window.requestAnimationFrame(animate);
             }
 

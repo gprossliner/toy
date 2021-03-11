@@ -3,86 +3,86 @@ function toy(name) {
   let instance = toy.toys[name];
   if (!instance) {
     console.log(`toy: ${name} created`);
-    instance = new Toy(name);
+    instance = Toy(name);
     toy.toys[name] = instance;
     return instance;
   }
   return instance;
 
+  function Toy(label) {
 
-  function Toy(name) {
+    const self = function Toy(defaultValue) {
+      if (self.defaultValue === null) {
+        setDefaultValue(defaultValue);
+      }
 
-    this.name = name;
-    this.value = null;
-    this.defaultValue = 0;
-    this.options = {
+      return self.value ?? self.defaultValue;
+    }
+    
+    self.label = label;
+    self.value = null;
+    self.defaultValue = null;
+    self.options = {
       ui : toy.ui.controls.text
     };
 
     const setDefaultValue = (defaultValue) => {
-      this.defaultValue = defaultValue;
+      self.defaultValue = defaultValue;
       
       // check for datatypes
       if(defaultValue.constructor == Boolean) {
-        this.ui(toy.ui.controls.checkbox)
+        self.ui(toy.ui.controls.checkbox)
       }
       
       // check for ui selector
       for(const sel of toy.uiselectors){
         if(sel.test(defaultValue)) {
-          this.options.selector = sel;
-          this.ui(sel.ui);
+          self.options.selector = sel;
+          self.ui(sel.ui);
         }
       }
 
       // run notifiers
       for(let n of toy.notifiers) {
-        n(this);
+        n(self);
       }
     }
 
-    this.get = function (defaultValue) {
-
-      if (!this.defaultValue) {
-        setDefaultValue(defaultValue);
-      }
-
-      return this.value ?? this.defaultValue;
-    };
-
-    this.set = function (value) {
+    self.set = function (value) {
 
       // value by be converted, so we check the type of the default-value
-      if (this.defaultValue.constructor != value.constructor) {
-        let converted = this.defaultValue.constructor(value);
+      if (self.defaultValue.constructor != value.constructor) {
+        let converted = self.defaultValue.constructor(value);
         value = converted;
       }
 
-      this.value = value;
-      return this;
+      self.value = value;
+      return self;
     };
 
-    this.range = function (min, max, step = 0) {
+    self.range = function (min, max, step = 0) {
 
       // if step is not configured, use 100 steps
       if (!step) {
         step = (max - min) / 100;
       }
-      this.options.range = { min, max, step };
-      return this.ui(toy.ui.controls.range);
+      self.options.range = { min, max, step };
+      return self.ui(toy.ui.controls.range);
     }
 
-    this.bind = function (defered, callback, defaultValue) {
+    self.bind = function (defered, callback, defaultValue) {
       setDefaultValue(defaultValue);
-      defered.binds.push(() => callback(this.get()));
+      defered.binds.push(() => callback(self()));
       callback(defaultValue);
-      return this;
+      return self;
     }
 
-    this.ui = function (control) {
-      this.options.ui = control;
-      return this;
+    self.ui = function (control) {
+      self.options.ui = control;
+      return self;
     }
+
+    return self;
   }
 
 }
@@ -161,14 +161,14 @@ toy.ui = function (parent) {
   const buildToy = t=> {
 
       const li = ul.create("li");
-      li.create("div").cls("toy-name").text(t.name);
+      li.create("div").cls("toy-label").text(t.label);
 
       let writefn = val => t.set(val);
-      let value = t.get(); 
+      let value = t(); 
       
       if(t.options.selector) { 
         writefn = val => t.set(t.options.selector.fromUi(val));
-        value = t.options.selector.toUi(t.get());      
+        value = t.options.selector.toUi(t());      
       }
 
       t.options.ui(t.options, li, value, writefn)
