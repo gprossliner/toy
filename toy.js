@@ -101,12 +101,6 @@ toy.notifier = function (notifier) {
     }
 }
 
-if (!window.toy) window.toy = toys;
-
-if (typeof module != 'undefined') {
-    module.exports = toys;
-}
-
 toy.ui = function (parent) {
 
     // this will contain the css from toy.css
