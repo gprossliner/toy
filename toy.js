@@ -133,81 +133,20 @@ if (typeof module != 'undefined') {
 
 toy.ui = function (parent) {
 
-  const stylesheet = `
+  // this will contain the css from toy.css
+  // for now we use the toy.css for better editing
+  // const stylesheet = `    
+  // `;
+  // $dom(parent).create("style")
+  //   .attr("type", "text/css")
+  //   .text(stylesheet);
 
-    div.toy-root {
-      position: fixed;
-      color: white;
-      font-family: Arial, Helvetica, sans-serif;
-      margin: 3px;
-    }
-
-    .toy-sliderinput {
-      width: 55px;
-    }
-
-    .toy-toggle: {
-      display:none;
-    }
-    
-    .toy-lbl-toggle {
-      display: block;
-      padding: 1rem;
-      color: #ddd;
-      background: #086362;
-      cursor: pointer;
-      border-radius: 7px;
-      transition: all 0.25s ease-out;
-    }
-    
-    .toy-lbl-toggle:hover {
-      color: #fff;
-    }
-    
-    .toy-lbl-toggle::before {
-      content: " ";
-      display: inline-block;
-      border-top: 5px solid transparent;
-      border-bottom: 5px solid transparent;
-      border-left: 5px solid currentColor;
-      vertical-align: middle;
-      margin-right: 0.7rem;
-      transform: translateY(-2px);
-      transition: transform 0.2s ease-out;
-    }
-    
-    .toy-toggle:checked + .toy-lbl-toggle::before {
-      transform: rotate(90deg) translateX(-3px);
-    }
-    
-    .toy-collapsible-content {
-      max-height: 0px;
-      overflow: hidden;
-      transition: max-height 0.25s ease-in-out;
-    }
-    .toy-toggle:checked + .toy-lbl-toggle + .toy-collapsible-content {
-      max-height: 350px;
-    }
-    .toy-toggle:checked + .toy-lbl-toggle {
-      border-bottom-right-radius: 0;
-      border-bottom-left-radius: 0;
-    }
-    .toy-collapsible-content .toy-content-inner {
-      background: #a5caca;
-      border-bottom: 1px solid rgba(0, 105, 255, 0.45);
-      border-bottom-left-radius: 7px;
-      border-bottom-right-radius: 7px;
-      padding: 0.5rem 1rem;
-    }
-    .toy-collapsible-content p {
-      margin-bottom: 0;
-    }
-    
-  `;
-
-  $dom(parent).create("style")
+  //<link rel="stylesheet" type="text/css" media="screen" href="main.css"></link>
+  $dom(parent).create("link")
+    .attr("rel", "stylesheet")
     .attr("type", "text/css")
-    .text(stylesheet);
+    .attr("media", "screen")
+    .attr("href", "toy.css")
 
   const divRoot = $dom(parent).create("div")
     .cls("toy-root")
@@ -217,8 +156,7 @@ toy.ui = function (parent) {
   divRoot.create("input")
     .id("toy-collapsible")
     .cls("toy-toggle")
-    .attr("type", "checkbox")    
-    .attr("style", "display:none")
+    .attr("type", "checkbox")
     .attr("checked", true)
 
   divRoot.create("label")
