@@ -143,6 +143,9 @@ toy.ui = function (parent) {
       padding: 15px;
     }
 
+    .toy-sliderinput {
+      width: 55px;
+    }
   `;
 
   $dom(parent).create("style")
@@ -178,17 +181,39 @@ toy.ui = function (parent) {
 
 toy.ui.controls = [];
 
-toy.ui.controls.range = (options, parent, value, writefn) =>
-  parent.create("input").value(value)
+toy.ui.controls.range = (options, parent, value, writefn) => {
+
+  let container = parent.create("span");
+
+  const update = value => {
+    input.value(value);
+    slider.value(value);
+    writefn(value);
+  };
+
+  // slider
+  const slider = container.create("input").value(value)
     .attr("type", "range")
     .attr("min", options.range.min)
     .attr("max", options.range.max)
     .attr("step", options.range.step)
-    .addEventListener("input", event => writefn(Number(event.target.value)));
+    .addEventListener("input", event => update(Number(event.target.value)));
+
+  // input
+  const input = container.create("input").value(value)
+    .attr("type", "number")  
+    .attr("min", options.range.min)
+    .attr("max", options.range.max)
+    .attr("step", options.range.step)
+    .cls("toy-sliderinput")
+    .addEventListener("input", event => update(Number(event.target.value)));
+  
+  return container;
+}
 
 toy.ui.controls.checkbox = (options, parent, value, writefn) =>
   parent.create("input").attr("checked", value)
-    .attr("type", "checkbox")
+    .attr("type", "checkbox")    
     .addEventListener("input", event => writefn(event.target.checked));
 
 toy.ui.controls.color = (options, parent, value, writefn) =>

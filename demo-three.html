@@ -44,8 +44,14 @@
 					.get(new THREE.Vector3(1,1,1))
 				);
 
+				cube.position.copy(
+					toy("position")
+					.range(-10, 10)
+					.get(new THREE.Vector3(0,0,0))
+				);
+
 				// THREE.Euler has no .add method, so we update it manually
-				const r = toy("rot").range(0, .05).get(new THREE.Euler(.01, .01))
+				const r = toy("rot").range(0, .5).get(new THREE.Euler(.01, .01))
 				cube.rotation.x += r.x;
 				cube.rotation.y += r.y;
 				cube.rotation.z += r.z;
