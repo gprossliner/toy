@@ -38,12 +38,17 @@
 			const animate = function () {
 				requestAnimationFrame( animate );
 
-				if(toy("rotate").get(true)){
-					cube.rotation.x += toy("rot-x").range(0, 1).get(0.01);
-					cube.rotation.y += toy("rot-y").range(0, 1).get(0.01);
-				}
+				cube.scale.copy(
+					toy("scale")
+					.range(.5, 2)
+					.get(new THREE.Vector3(1,1,1))
+				);
 
-				cube.scale.copy(new toy("scale").range(.5, 2).get(new THREE.Vector3(1,1,1)));
+				// THREE.Euler has no .add method, so we update it manually
+				const r = toy("rot").range(0, .05).get(new THREE.Euler(.01, .01))
+				cube.rotation.x += r.x;
+				cube.rotation.y += r.y;
+				cube.rotation.z += r.z;
 
 				toyAnimate();
 				renderer.render( scene, camera );

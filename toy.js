@@ -184,7 +184,7 @@ toy.ui.controls.range = (options, parent, value, writefn) =>
     .attr("min", options.range.min)
     .attr("max", options.range.max)
     .attr("step", options.range.step)
-    .addEventListener("input", event => writefn(event.target.value));
+    .addEventListener("input", event => writefn(Number(event.target.value)));
 
 toy.ui.controls.checkbox = (options, parent, value, writefn) =>
   parent.create("input").attr("checked", value)
@@ -353,6 +353,12 @@ if (typeof THREE != 'undefined') {
   });
 
   // THREE.Euler: .rotation
+  // because the THREE.Euler also has xyz, we can use the vec3 ui!
+  toy.uiselector({
+    test : value => value.constructor == THREE.Euler,
+    ui : toy.ui.controls.vec3
+  });
+
 
   // Matrix3: / 4
 }
