@@ -10,14 +10,14 @@
     <script src="toy.js"></script>
     <script>
 
-        function setvalue(value){
+        function setvalue(value) {
             document.getElementById("value").innerText = value;
         }
 
         function onload() {
 
             const toyAnimate = toy.defered();
-            toy("value").bind(toyAnimate, value=>setvalue(value), 3.0);
+            toy("value").bind(toyAnimate, value => setvalue(value), 3.0);
 
             function animate() {
                 toyAnimate();

@@ -1,48 +1,53 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<style>
-			body { margin: 0; }
-		</style>
-	</head>
-	<body>
-		<div id=toy></div>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js"></script>
-		<script src="toy.js"></script>
-		<script>
-			const scene = new THREE.Scene();
-			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-			const renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
 
-			const geometry = new THREE.BoxGeometry();
-			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			const cube = new THREE.Mesh( geometry, material );
-			scene.add( cube );
+<body>
+    <div id=toy></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js"></script>
+    <script src="toy.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-			// define a defered binding
-			let toyAnimate = toy.defered();
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-			// normal call:
-			toy("cam-z").bind(toyAnimate, value=>camera.position.z=value, 5);
-			
-			const animate = function () {
-				requestAnimationFrame( animate );
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
 
-				cube.rotation.x += toy("rot-x")(0.01);
-				cube.rotation.y += toy("rot-y")(0.01);
+        // define a defered binding
+        let toyAnimate = toy.defered();
 
-				toyAnimate();
-				renderer.render( scene, camera );
-			};
+        // normal call:
+        toy("cam-z").bind(toyAnimate, value => camera.position.z = value, 5);
 
-			animate();
+        const animate = function () {
+            requestAnimationFrame(animate);
 
-			toy.ui(document.getElementById("toy"))
-		</script>
-	</body>
+            cube.rotation.x += toy("rot-x")(0.01);
+            cube.rotation.y += toy("rot-y")(0.01);
+
+            toyAnimate();
+            renderer.render(scene, camera);
+        };
+
+        animate();
+
+        toy.ui(document.getElementById("toy"))
+    </script>
+</body>
+
 </html>

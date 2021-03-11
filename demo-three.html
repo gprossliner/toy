@@ -1,67 +1,72 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>My first three.js app</title>
-		<style>
-			body { margin: 0; }
-		</style>
-	</head>
-	<body>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js"></script>
-		<script src="toy.js"></script>
-		<script>
 
-			toy.ui(document.body)
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
 
-			// define a defered toy to apply values in animate()
-			let toyAnimate = toy.defered();
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js"></script>
+    <script src="toy.js"></script>
+    <script>
 
-			const scene = new THREE.Scene();
-			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        toy.ui(document.body)
 
-			const renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
+        // define a defered toy to apply values in animate()
+        let toyAnimate = toy.defered();
 
-			const geometry = new THREE.BoxGeometry();
-			const material = new THREE.MeshBasicMaterial();
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-			material.color = toy("color")
-				.bind(toyAnimate, color => material.color = color, new THREE.Color(0x00ff00));
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-			const cube = new THREE.Mesh( geometry, material );
-			scene.add( cube );
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial();
 
-			camera.position.z = 5;
+        material.color = toy("color")
+            .bind(toyAnimate, color => material.color = color, new THREE.Color(0x00ff00));
 
-			const animate = function () {
-				requestAnimationFrame( animate );
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
 
-				cube.scale.copy(
-					toy("scale")
-					.range(.5, 2)
-					(new THREE.Vector3(1,1,1))
-				);
+        camera.position.z = 5;
 
-				cube.position.copy(
-					toy("position")
-					.range(-10, 10)
-					(new THREE.Vector3(0,0,0))
-				);
+        const animate = function () {
+            requestAnimationFrame(animate);
 
-				// THREE.Euler has no .add method, so we update it manually
-				const r = toy("rot").range(0, .5)(new THREE.Euler(.01, .01))
-				cube.rotation.x += r.x;
-				cube.rotation.y += r.y;
-				cube.rotation.z += r.z;
+            cube.scale.copy(
+                toy("scale")
+                    .range(.5, 2)
+                    (new THREE.Vector3(1, 1, 1))
+            );
 
-				toyAnimate();
-				renderer.render( scene, camera );
-			};
+            cube.position.copy(
+                toy("position")
+                    .range(-10, 10)
+                    (new THREE.Vector3(0, 0, 0))
+            );
 
-			animate();
-			
-		</script>
-	</body>
+            // THREE.Euler has no .add method, so we update it manually
+            const r = toy("rot").range(0, .5)(new THREE.Euler(.01, .01))
+            cube.rotation.x += r.x;
+            cube.rotation.y += r.y;
+            cube.rotation.z += r.z;
+
+            toyAnimate();
+            renderer.render(scene, camera);
+        };
+
+        animate();
+
+    </script>
+</body>
+
 </html>
