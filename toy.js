@@ -2,20 +2,20 @@
 
     let toys = {};
     let uiselectors = [];
-    let observers = []; 
+    let observers = [];
 
-    function toy(name) {
+    function toy(label) {
 
-        let instance = toys[name];
-        if (!instance) {
-            console.log(`toy: ${name} created`);
-            instance = Toy(name);
-            toys[name] = instance;
-            return instance;
-        }
+        let instance = toys[label];
+        if (instance) return instance;
+
+        instance = createToy(label);
+        toys[label] = instance;
+
+        console.log(`toy: ${label} created`);
         return instance;
 
-        function Toy(label) {
+        function createToy(label) {
 
             const self = function Toy(defaultValue) {
 
@@ -37,8 +37,8 @@
                     }
 
                     // run notifiers
-                    for (let n of observers) {
-                        n(self);
+                    for (const observer of observers) {
+                        observer(self);
                     }
                 }
 
@@ -53,13 +53,6 @@
             };
 
             self.set = function (value) {
-
-                // value by be converted, so we check the type of the default-value
-                if (self.defaultValue.constructor != value.constructor) {
-                    let converted = self.defaultValue.constructor(value);
-                    value = converted;
-                }
-
                 self.value = value;
                 return self;
             };
@@ -67,11 +60,10 @@
             self.range = function (min, max, step = 0) {
 
                 // if step is not configured, use 100 steps
-                if (!step) {
-                    step = (max - min) / 100;
-                }
+                step ||= (max - min) / 100;
                 self.options.range = { min, max, step };
-                return self.ui(toy.ui.controls.range);
+                self.ui(toy.ui.controls.range);
+                return self;
             }
 
             self.ui = function (control) {
@@ -87,18 +79,15 @@
     toy.util = {};
 
     toy.util.observe = {
-        toys : observer => {
+        toys: observer => {
             observers.push(observer);
-    
+
             // notifiy about existing toys
-            const names = Reflect.ownKeys(toys);
-            for (let name of names) {
-                const t = toys[name];
-                observer(t);
+            for (const label of Reflect.ownKeys(toys)) {
+                observer(toys[label]);
             }
         }
     }
-
 
     toy.ui = function (parent) {
 
@@ -139,23 +128,23 @@
             .create("div")
             .cls("toy-content-inner")
 
-        toy.util.observe.toys(t => {
+        toy.util.observe.toys(toy => {
 
             const container = divContent.create("div")
                 .cls("toy-container")
 
-            container.create("div").cls("toy-label").text(t.label);
+            container.create("div").cls("toy-label").text(toy.label);
 
-            let oninput = val => t.set(val);
-            let value = t();
+            let oninput = val => toy.set(val);
+            let value = toy();
 
-            if (t.options.selector) {
-                oninput = val => t.set(t.options.selector.fromUi(val));
-                value = t.options.selector.toUi(t());
+            if (toy.options.selector) {
+                oninput = val => toy.set(toy.options.selector.fromUi(val));
+                value = toy.options.selector.toUi(toy());
             }
 
-            const toyui = t.options.ui({
-                options: t.options,
+            let toyui = toy.options.ui({
+                options: toy.options,
                 value,
                 oninput
             });
@@ -170,7 +159,7 @@
 
         selector.fromUi ||= v => v;
         selector.toUi ||= v => v;
-    
+
         uiselectors.push(selector);
     };
 
@@ -237,6 +226,7 @@
     // I removed creating $dom and FluentDom in window scope
     $dom = toy.util.dom = (function () {
         var FluentDom = function (node) {
+            if(node.fluentDom) return node;
             return new FluentDomInternal(node);
         }
 
