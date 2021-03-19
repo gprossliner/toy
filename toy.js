@@ -120,7 +120,8 @@
         divRoot.create("label")
             .attr("for", "toy-collapsible")
             .cls("toy-lbl-toggle")
-            .text("TOYGUI")
+            .create("span")
+            .cls("toy-logo")
 
         const divContent = divRoot
             .create("div")
@@ -350,7 +351,7 @@
             const component = c =>
                 container.create("label")
                     .cls("toy-sublabel")
-                    .append($dom.create("div").text(`${c}:`))
+                    .append($dom.create("div").text(`${c}`))
                     .append(toy.ui.controls.range({
                         options: args.options,
                         value: args.value[c],
