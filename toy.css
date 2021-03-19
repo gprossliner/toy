@@ -160,3 +160,13 @@ a {
   bottom:1.2rem; font-size: .8rem" 
 }
 
+
+.logotoy {
+  position: fixed;
+  top: 0%;
+  right: 0%;
+  margin: 1rem;
+  width: 7vw;
+  z-index: 9;
+}
+
