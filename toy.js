@@ -133,7 +133,7 @@
             const container = divContent.create("div")
                 .cls("toy-container")
 
-            container.create("div").cls("toy-label").text(toy.label);
+            const label = container.create("label").cls("toy-label").text(toy.label);
 
             let oninput = val => toy.set(val);
             let value = toy();
@@ -149,7 +149,7 @@
                 oninput
             });
 
-            container.append(toyui);
+            label.append(toyui);
         });
 
         return divRoot.toDom();
@@ -348,8 +348,9 @@
             const container = $dom.create("div");
 
             const component = c =>
-                container.create("div")
-                    .append(`${c}: `)
+                container.create("label")
+                    .cls("toy-sublabel")
+                    .append($dom.create("div").text(`${c}:`))
                     .append(toy.ui.controls.range({
                         options: args.options,
                         value: args.value[c],
