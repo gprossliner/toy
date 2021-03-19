@@ -120,7 +120,7 @@
         divRoot.create("label")
             .attr("for", "toy-collapsible")
             .cls("toy-lbl-toggle")
-            .text("toy-ui")
+            .text("TOYGUI")
 
         const divContent = divRoot
             .create("div")

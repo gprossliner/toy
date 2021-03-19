@@ -1,67 +1,146 @@
 div.toy-root {
-    position: absolute;
-    color: rgb(241, 232, 232);
-    font-family: Arial, Helvetica, sans-serif;
-    margin: 3px;
-  }
+  
+  position: absolute;
+  background-color: #1a1a1a;
+  color: rgb(241, 232, 232);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 3px;
+  border-bottom-right-radius: 10px;
+  
 
-  .toy-sliderinput {
-    width: 55px;
-  }
+}
 
-  .toy-toggle {
-    display:none;
-  }
+.toy-sliderinput {  
+  outline: none;
+  width: 55px;
+  background-color: #212121;
+  color: #616161;
+  border-style: none;
+  border-radius: 4px;
+  padding-left:10px;
+  padding-right:10px;
+}
+
+.toy-toggle {
+  display:none !important;
+}
+
+.toy-lbl-toggle {
+  display: block;
+  padding: 1rem;
+  color: #79facf;
+  background: #1a1a1a;
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all 0.25s ease-out;
+}
+
+.toy-lbl-toggle:hover {
+  color: #616161;
+}
+
+.toy-lbl-toggle::before {
+  content: " ";
+  display: inline-block;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid currentColor;
+  vertical-align: middle;
+  margin-right: 0.7rem;
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-out;
+}
+
+.toy-toggle:checked + .toy-lbl-toggle::before {
+  transform: rotate(90deg) translateX(-3px);
+}
+
+.toy-collapsible-content {
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out;
+}
+.toy-toggle:checked + .toy-lbl-toggle + .toy-collapsible-content {
+  max-height: 5500px;
+}
+.toy-toggle:checked + .toy-lbl-toggle {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.toy-collapsible-content .toy-content-inner {
+  -webkit-appearance: none;
+  background: transparent;
+  padding: 0.5rem 1rem;
+  font-size: .8rem;
+  color: #616161;
+  padding-bottom: 20px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: hsla(0,0.00%, 38.04%,0.30);
   
-  .toy-lbl-toggle {
-    display: block;
-    padding: 1rem;
-    color: #ddd;
-    background: #086362;
-    cursor: pointer;
-    border-radius: 7px;
-    transition: all 0.25s ease-out;
-  }
-  
-  .toy-lbl-toggle:hover {
-    color: #fff;
-  }
-  
-  .toy-lbl-toggle::before {
-    content: " ";
-    display: inline-block;
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 5px solid currentColor;
-    vertical-align: middle;
-    margin-right: 0.7rem;
-    transform: translateY(-2px);
-    transition: transform 0.2s ease-out;
-  }
-  
-  .toy-toggle:checked + .toy-lbl-toggle::before {
-    transform: rotate(90deg) translateX(-3px);
-  }
-  
-  .toy-collapsible-content {
-    max-height: 0px;
-    overflow: hidden;
-    transition: max-height 0.25s ease-in-out;
-  }
-  .toy-toggle:checked + .toy-lbl-toggle + .toy-collapsible-content {
-    max-height: 5500px;
-  }
-  .toy-toggle:checked + .toy-lbl-toggle {
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-  .toy-collapsible-content .toy-content-inner {
-    background: #a5caca;
-    border-bottom: 1px solid rgba(0, 105, 255, 0.45);
-    border-bottom-left-radius: 7px;
-    border-bottom-right-radius: 7px;
-    padding: 0.5rem 1rem;
-  }
-  .toy-collapsible-content p {
-    margin-bottom: 0;
-  }
+}
+.toy-collapsible-content p {
+  margin-bottom: 0;
+}
+
+.toy-content-inner > span {
+  display: flex;
+}
+
+#toy-root input {
+  color: #616161;
+  display: flex;
+}
+
+#toy-root input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #313131;
+  outline: none;
+  opacity: 0.7;
+  display: flex;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+  margin-right: 15px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 4px;
+}
+
+
+#toy-root input[type="color"] {
+  -webkit-appearance: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+}
+
+
+.toy-collapsible-content .toy-content-inner span {
+  display: flex;
+}
+
+
+.toy-collapsible-content .toy-content-inner div {
+  display: flex;
+  flex-direction: column;
+}
+
+.toy-collapsible-content .toy-content-inner div > div > div {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.toy-label {
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
