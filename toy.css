@@ -33,6 +33,7 @@ div.toy-root {
   cursor: pointer;
   border-radius: 7px;
   transition: all 0.25s ease-out;
+  font-size: .8rem;
 }
 
 .toy-lbl-toggle:hover {
