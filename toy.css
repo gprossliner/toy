@@ -112,8 +112,9 @@ div.toy-root {
 #toy-root input[type="color"] {
   -webkit-appearance: none;
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 25px;
+  height: 25px;
+  outline: none;
 }
 input[type="color"]::-webkit-color-swatch-wrapper {
   padding: 0;
