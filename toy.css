@@ -144,3 +144,11 @@ input[type="color"]::-webkit-color-swatch {
   margin-bottom: 5px;
 }
 
+.info {
+  margin-left: .8rem;
+}
+
+a {
+  text-decoration: none;
+}
+
