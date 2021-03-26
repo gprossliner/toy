@@ -113,6 +113,17 @@ div.toy-root {
   border-radius: 4px;
 }
 
+#toy-root input[type=range]::-webkit-slider-thumb {
+
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  background: #79facf;
+  cursor: pointer;
+
+}
+
 
 #toy-root input[type="color"] {
   -webkit-appearance: none;
