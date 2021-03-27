@@ -71,6 +71,23 @@
                 return self;
             }
 
+            self.frameActions = [];
+            self.animateFrameId = 0;
+            self.onAnimationFrame = function(cb, defaultValue) {
+                self.frameActions.push(cb);
+
+                const animate = ()=>{
+
+                    self.animateFrameId = window.requestAnimationFrame(animate)
+
+                    for(const cb of self.frameActions) {
+                        cb(self(defaultValue));
+                    }
+                };
+
+                animate();
+            }
+
             return self;
         }
 

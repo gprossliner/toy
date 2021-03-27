@@ -57,7 +57,13 @@
         toy.ui(document.body)
 
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(0, window.innerWidth / window.innerHeight, 0.1, 1000);
+        toy("fov")
+            .range(10,100)
+            .onAnimationFrame(v=>{
+                camera.fov = v;
+                camera.updateProjectionMatrix();
+            }, 75);
         camera.position.y = .5;
 
 
@@ -82,8 +88,14 @@
             color: 0x211131,
             specular: 0x211131,
             emissive: 0x211131,
-            fog: true,
+            fog: true
         });
+
+        toy("fog").onAnimationFrame(v=>{
+            material.fog=v;
+            material.needsUpdate=true
+        }, true);
+
         const directionalLight = new THREE.DirectionalLight(0x00e1ff, 1);
         scene.add(directionalLight);
         const light = new THREE.AmbientLight(0x00e1ff, .5); // soft white light
@@ -109,6 +121,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
 
         }
+
 
         const animate = function () {
             requestAnimationFrame(animate);
