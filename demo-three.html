@@ -58,12 +58,10 @@
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(0, window.innerWidth / window.innerHeight, 0.1, 1000);
-        toy("fov")
-            .range(10,100)
-            .onAnimationFrame(v=>{
+        toy("fov").range(10,100)(75, v=>{
                 camera.fov = v;
                 camera.updateProjectionMatrix();
-            }, 75);
+        });
         camera.position.y = .5;
 
 
@@ -91,10 +89,10 @@
             fog: true
         });
 
-        toy("fog").onAnimationFrame(v=>{
+        toy("fog")(true, v=>{
             material.fog=v;
-            material.needsUpdate=true
-        }, true);
+            material.needsUpdate=true;
+        });
 
         const directionalLight = new THREE.DirectionalLight(0x00e1ff, 1);
         scene.add(directionalLight);

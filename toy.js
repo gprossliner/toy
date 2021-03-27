@@ -17,7 +17,7 @@
 
         function createToy(label) {
 
-            const self = function Toy(defaultValue) {
+            const self = function Toy(defaultValue, callback) {
 
                 // perform initialization
                 if (self.defaultValue === null) {
@@ -42,6 +42,11 @@
                     }
                 }
 
+                if(callback) {
+                    self.callback = callback;
+                    self.callback(defaultValue);
+                }
+
                 return self.value ?? self.defaultValue;
             }
 
@@ -54,6 +59,11 @@
 
             self.set = function (value) {
                 self.value = value;
+
+                if(self.callback) {
+                    self.callback(value);
+                }
+
                 return self;
             };
 
@@ -69,23 +79,6 @@
             self.ui = function (control) {
                 self.options.ui = control;
                 return self;
-            }
-
-            self.frameActions = [];
-            self.animateFrameId = 0;
-            self.onAnimationFrame = function(cb, defaultValue) {
-                self.frameActions.push(cb);
-
-                const animate = ()=>{
-
-                    self.animateFrameId = window.requestAnimationFrame(animate)
-
-                    for(const cb of self.frameActions) {
-                        cb(self(defaultValue));
-                    }
-                };
-
-                animate();
             }
 
             return self;
@@ -332,7 +325,8 @@
             }
 
             this.value = function (value) {
-                return this.attr("value", value);
+                this.toDom().value = value;
+                return this;
             }
 
         };
